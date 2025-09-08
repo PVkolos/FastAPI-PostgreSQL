@@ -1,0 +1,14 @@
+from typing import Annotated
+from pydantic import BaseModel, Field
+from schemas.tasks import Task
+
+
+class CreateUser(BaseModel):
+    name: Annotated[str, Field(..., title="Имя пользователя", min_length=4, max_length=100)]
+    age: Annotated[int, Field(..., title="Возраст пользователя", ge=1, le=130)]
+    password: Annotated[str, Field(..., title="Пароль пользователя")]
+
+
+class User(CreateUser):
+    id: int
+    tasks: list["Task"]
