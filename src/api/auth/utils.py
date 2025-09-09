@@ -2,12 +2,12 @@ from datetime import datetime, timedelta
 from typing import Annotated
 
 import jwt
-from config import settings, auth_jwt
+from src.config import  auth_jwt
 import bcrypt
-from fastapi import Form, HTTPException, status, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials, OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from database.database_orm import DataBase
-from schemas.users import User
+from fastapi import HTTPException, status, Depends
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from src.database.database_orm import DataBase
+from src.schemas.users import User
 
 # http_bearer = HTTPBearer()
 

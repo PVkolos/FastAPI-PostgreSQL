@@ -5,8 +5,8 @@ import aiofiles
 from fastapi import APIRouter, Body, Path, Query, HTTPException
 from sqlalchemy.exc import IntegrityError, DBAPIError
 
-from schemas.tasks import CreateTask, Task
-from database.database_orm import DataBase
+from src.schemas import CreateTask, Task
+from src.database.database_orm import DataBase
 
 router_tasks = APIRouter()
 

@@ -1,14 +1,17 @@
 import asyncio
 
-from sqlalchemy import select, delete
-from database.create_session import async_engine, async_session
-from database.models.tasks_model import TaskModel
-from database.models.users_model import UserModel
-from database.models.base_model import Base
+from sqlalchemy import select
+from src.database.create_session import async_engine, async_session
+
+
 
 from sqlalchemy.orm import selectinload, contains_eager
-from schemas.users import User
-from schemas.tasks import Task
+from src.schemas import User, Task
+
+
+from src.database.models.tasks_model import TaskModel
+from src.database.models.users_model import UserModel
+from src.database.models.base_model import Base
 
 
 class DataBase:
