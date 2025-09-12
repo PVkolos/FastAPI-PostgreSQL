@@ -21,6 +21,7 @@ class ConfigBase(BaseSettings):
 class Roles(BaseModel):
     admin: str = 'admin'
     user: str = 'user'
+    guest: str = 'guest'
 
 
 class DB_Settings(ConfigBase):
