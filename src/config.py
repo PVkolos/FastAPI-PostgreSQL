@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pydantic.v1 import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -14,7 +15,16 @@ class JWTAuth(BaseModel):
     # access_token_expire_minutes: int = 60
 
 
-class Settings(BaseSettings):
+class ConfigBase(BaseSettings):
+    model_config = SettingsConfigDict(env_file=f"{BASE_DIR}/.env")
+
+
+class Roles(BaseModel):
+    admin: str = 'admin'
+    user: str = 'user'
+
+
+class DB_Settings(ConfigBase):
     DB_HOST: str
     DB_PORT: int
     DB_USER: str
@@ -30,8 +40,12 @@ class Settings(BaseSettings):
         # DSN
         return f"postgresql+psycopg2://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
-    model_config = SettingsConfigDict(env_file="../.env")
+
+class Settings:
+    db: DB_Settings = DB_Settings()
+    roles: Roles = Roles()
+    auth_jwt: JWTAuth = JWTAuth()
 
 
 settings = Settings()
-auth_jwt: JWTAuth = JWTAuth()
+# auth_jwt: JWTAuth = JWTAuth()

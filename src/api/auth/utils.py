@@ -1,8 +1,9 @@
+import secrets
 from datetime import datetime, timedelta
 from typing import Annotated
 
 import jwt
-from src.config import  auth_jwt
+from src.config import settings
 import bcrypt
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -16,9 +17,9 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login/")
 
 def encode_jwt(
         payload: dict,
-        private_key: str = auth_jwt.private_key_path.read_text(),
-        algorithm: str = auth_jwt.algorithm,
-        expire_minutes: int = auth_jwt.access_token_expire_minutes,
+        private_key: str = settings.auth_jwt.private_key_path.read_text(),
+        algorithm: str = settings.auth_jwt.algorithm,
+        expire_minutes: int = settings.auth_jwt.access_token_expire_minutes,
     ):
     payload['iat'] = datetime.utcnow()
     payload['exp'] = datetime.utcnow() + timedelta(minutes=expire_minutes)
@@ -28,8 +29,8 @@ def encode_jwt(
 
 def decode_jwt(
         encoded: str | bytes,
-        public_key: str = auth_jwt.public_key_path.read_text(),
-        algorithm: str = auth_jwt.algorithm,
+        public_key: str = settings.auth_jwt.public_key_path.read_text(),
+        algorithm: str = settings.auth_jwt.algorithm,
     ):
     decoded = jwt.decode(encoded, public_key, algorithms=[algorithm])
     return decoded
