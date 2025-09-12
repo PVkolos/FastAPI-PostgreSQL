@@ -4,12 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey, func
 import datetime
 from src.database.models import Base
-
-
-class Status(Enum):
-    in_progress = "in_progress"
-    done = "done"
-    failed = "failed"
+from src.enums import Status
 
 
 class TaskModel(Base):

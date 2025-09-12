@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 from pydantic.v1 import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict

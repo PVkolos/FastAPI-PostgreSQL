@@ -8,6 +8,8 @@ from sqlalchemy.exc import IntegrityError, DBAPIError
 from src.schemas import CreateTask, Task
 from src.database.database_orm import DataBase
 
+from src.enums import Status
+
 router_tasks = APIRouter()
 
 
@@ -38,7 +40,7 @@ async def get_tasks_user(user_id: Annotated[int, Path(..., title='id польз�
 
 @router_tasks.put("/tasks/edit/{task_id}", tags=['Работа с задачами'], summary='Редактирование статуса задачи')
 async def edit_task(task_id: Annotated[int, Path(..., title='id задачи, статус которой требуется изменить', ge=1)],
-                    status: Annotated[str, Query(..., title='Статус задачи. Допустимые значения: in-progress, done, failed', max_length=11, min_length=4)]) -> Dict[str, int]:
+                    status: Annotated[Status, Query(..., title='Статус задачи. Допустимые значения: in-progress, done, failed', max_length=11, min_length=4)]) -> Dict[str, int]:
     '''
     :param task_id: integer.
     \n:param status: string. Принимаемые значения: ['in_progress', 'done', 'failed']. Значение по умолчанию при создании таски: in_progress
@@ -47,8 +49,8 @@ async def edit_task(task_id: Annotated[int, Path(..., title='id задачи, с
     try:
         await DataBase.update_task(task_id, status)
         return {'response': 200}
-    except DBAPIError:
-        raise HTTPException(404, 'Задача принимает несуществующий статус. Прочтите в документации возможные статусы задач')
+    # except DBAPIError:
+    #     raise HTTPException(404, 'Задача принимает несуществующий статус. Прочтите в документации возможные статусы задач')
     except AttributeError:
         raise HTTPException(404, 'Несуществующая задача')
 

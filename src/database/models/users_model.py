@@ -2,11 +2,7 @@ from enum import Enum
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.database.models import Base
-
-
-class Role(Enum):
-    user = "user"
-    admin = "admin"
+from src.enums import Role
 
 
 class UserModel(Base):
