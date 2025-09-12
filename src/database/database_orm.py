@@ -22,8 +22,8 @@ class DataBase:
             await connection.run_sync(Base.metadata.create_all)
 
     @staticmethod
-    async def insert_user(name, age, password):
-        user = UserModel(name=name, age=age, password=password)
+    async def insert_user(name, age, password, role):
+        user = UserModel(name=name, age=age, password=password, role=role)
         async with async_session() as session:
             session.add(user)
             await session.commit()

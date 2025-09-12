@@ -1,5 +1,12 @@
+from enum import Enum
+
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from src.database.models.base_model import Base
+from src.database.models import Base
+
+
+class Role(Enum):
+    user = "user"
+    admin = "admin"
 
 
 class UserModel(Base):
@@ -9,5 +16,9 @@ class UserModel(Base):
     name: Mapped[str] = mapped_column(nullable=False)
     age: Mapped[int] = mapped_column(nullable=False)
     password: Mapped[bytes] = mapped_column(nullable=False)
+    role: Mapped[Role] = mapped_column(nullable=False, server_default="user")
 
     tasks: Mapped[list["TaskModel"]] = relationship(back_populates="user")
+
+    def __str__(self):
+        return f'{self.__class__.__name__}({self.id=}, {self.name=}, {self.age=}, {self.role=})'

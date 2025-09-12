@@ -72,3 +72,9 @@ async def check_auth(
     if user := await DataBase.get_user(id_):
         return user
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Пользователь не найден')
+
+
+async def check_id_admin_and_users_role(user: Annotated[User, Depends(check_auth)]) -> User:
+    if user.role.value != settings.roles.admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Нет прав на выполнение операции!")
+    return user
