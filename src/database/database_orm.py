@@ -5,7 +5,7 @@ from src.database.create_session import async_engine, async_session
 
 
 
-from sqlalchemy.orm import selectinload, contains_eager
+from sqlalchemy.orm import selectinload, contains_eager, joinedload
 from src.schemas import User, Task
 
 
@@ -99,6 +99,20 @@ class DataBase:
             result = await session.execute(query)
             result = result.scalars().all()
             return [Task.model_validate(var, from_attributes=True) for var in result]
+
+    @staticmethod
+    async def get_user_from_task_id(task_id):
+        async with async_session() as session:
+            query = (
+                select(TaskModel)
+                .options(joinedload(TaskModel.user))
+                .where(TaskModel.id == task_id)
+            )
+            result = await session.execute(query)
+            result = result.scalars().first()
+            user = result.user
+            return user
+            # return [User.model_validate(var, from_attributes=True) for var in user]
 
             # ---- требуется доп валидация id для использования метода ниже ----
             # query = (

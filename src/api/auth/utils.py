@@ -5,9 +5,10 @@ from typing import Annotated
 import jwt
 from src.config import settings
 import bcrypt
-from fastapi import HTTPException, status, Depends
+from fastapi import HTTPException, status, Depends, Body
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from src.database.database_orm import DataBase
+from src.schemas import CreateTask
 from src.schemas.users import User
 
 # http_bearer = HTTPBearer()
@@ -74,7 +75,14 @@ async def check_auth(
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Пользователь не найден')
 
 
-async def check_id_admin_and_users_role(user: Annotated[User, Depends(check_auth)]) -> User:
+async def check_is_admin(user: Annotated[User, Depends(check_auth)]) -> User:
     if user.role.value != settings.roles.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Нет прав на выполнение операции!")
     return user
+
+
+async def check_user_permission(task_id: int, user) -> bool:
+    user_db = await DataBase.get_user_from_task_id(task_id)
+    if user.id == user_db.id or await check_is_admin(user):
+        return True
+    return False

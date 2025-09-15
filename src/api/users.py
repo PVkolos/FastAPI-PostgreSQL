@@ -19,7 +19,7 @@ async def add_user(user: Annotated[CreateUser, Body(..., example={
                                                                     "password": "Пароль",
                                                                     "role": "Роль пользователя"
                                                                 })],
-                   creator: Annotated[User, Depends(utils.check_id_admin_and_users_role)]) -> Dict[str, int | str]:
+                   creator: Annotated[User, Depends(utils.check_is_admin)]) -> Dict[str, int | str]:
     # if user.role not in settings.roles.dict():
     #     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Неверная роль пользователя")
     await DataBase.insert_user(user.name, user.age, utils.hash_password(user.password), user.role)
@@ -27,7 +27,7 @@ async def add_user(user: Annotated[CreateUser, Body(..., example={
 
 
 @router_users.get('/users', tags=['Работа с пользователями'], summary='Список всех пользователей с БД')
-async def get_users_all():
+async def get_users_all(user: Annotated[User, Depends(utils.check_is_admin)]) -> List[User]:
     list_users = await DataBase.get_all_users()
     return list_users
 

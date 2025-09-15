@@ -2,8 +2,8 @@ from typing import Annotated, TYPE_CHECKING
 from pydantic import BaseModel, Field
 from src.enums import Role
 
-if TYPE_CHECKING:
-    from . import Task
+# if TYPE_CHECKING:
+from . import Task
 
 
 class CreateUser(BaseModel):

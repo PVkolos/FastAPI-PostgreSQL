@@ -45,6 +45,8 @@ class Settings:
     db: DB_Settings = DB_Settings()
     roles: Roles = Roles()
     auth_jwt: JWTAuth = JWTAuth()
+    dump_path: str = "media"
+    base_dir: Path = BASE_DIR
 
 
 settings = Settings()
