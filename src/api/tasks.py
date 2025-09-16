@@ -96,8 +96,6 @@ async def tasks_to_file(user_id: Annotated[int, Path(..., title='id пользо
 
 async def dump_tasks(user_id):
     tasks = await DataBase.get_tasks_definite_user(user_id)
-    async with aiofiles.open(f'{settings.base_dir}/{settings.dump_path}/dump_{user_id}.txt', 'w', encoding='utf-8') as file:
+    async with aiofiles.open(f'{settings.const.base_dir}/{settings.const.dump_path}/dump_{user_id}.txt', 'w', encoding='utf-8') as file:
         for task in tasks:
             await file.write(f'{task.title} {task.description} {task.status}\n\n')
-
-

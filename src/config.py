@@ -10,7 +10,8 @@ class JWTAuth(BaseModel):
     private_key_path: Path = BASE_DIR.joinpath('certs/jwt-private.pem')
     public_key_path: Path = BASE_DIR.joinpath('certs/jwt-public.pem')
     algorithm: str = 'PS256'
-    access_token_expire_minutes: int = 50
+    access_token_expire_minutes: int = 30
+    refresh_token_expire_days: int = 30
     # access_token_expire_minutes: int = 60
 
 
@@ -41,12 +42,17 @@ class DB_Settings(ConfigBase):
         return f"postgresql+psycopg2://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
 
+class Const(BaseModel):
+    TOKEN_TYPE_FIELD: str = 'token_type'
+    dump_path: str = "media"
+    base_dir: Path = BASE_DIR
+
+
 class Settings:
     db: DB_Settings = DB_Settings()
     roles: Roles = Roles()
     auth_jwt: JWTAuth = JWTAuth()
-    dump_path: str = "media"
-    base_dir: Path = BASE_DIR
+    const = Const()
 
 
 settings = Settings()
