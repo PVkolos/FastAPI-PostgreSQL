@@ -35,25 +35,27 @@ async def get_users_all(user: Annotated[User, Depends(utils.check_is_admin)]) ->
 @router_users.post('/users/login',
                    tags=['Работа с пользователями'],
                    summary='Войти в аккаунт (выпустить токен)',
-                   response_model=TokenInfo)
+                   response_model=TokenInfo, response_model_exclude_none=True)
 async def login_user(
         user: User = Depends(utils.validate_user_login)
     ) -> TokenInfo:
-    payload = {
-        'sub': user.id,
-        'name': user.name,
-        'age': user.age,
-        'iat': ...,
-        'exp': ...
-    }
-    access_token = utils.encode_jwt(payload)
-    return TokenInfo(access_token=access_token, token_type='Bearer')
+
+    access_token = utils.create_access_jwt(user)
+    refresh_token = utils.create_refresh_jwt(user)
+    return TokenInfo(access_token=access_token, refresh_token=refresh_token)
 
 
 # @router_users.get('/users/check_auth', tags=['Работа с пользователями'], summary='Проверка авторизации')
 # async def check_auth(user: User = Depends(utils.check_auth)) -> Dict:
 #     return {'response': 200, 'name': user.name}
 
+
 @router_users.get('/users/check_auth', tags=['Работа с пользователями'], summary='Проверка авторизации')
-async def check_auth(user: Annotated[User, Depends(utils.check_auth)]) -> Dict:
+async def check_auth(user: Annotated[User, Depends(utils.check_token_auth)]) -> Dict:
     return {'response': 200, 'name': user.name}
+
+
+@router_users.post('/users/generate-access', tags=['Работа с пользователями'], summary='Перевыпуск access jwt',
+                   response_model=TokenInfo, response_model_exclude_none=True)
+async def generate_access_jwt(user: User = Depends(utils.check_token_auth_refresh)):
+    return TokenInfo(access_token=utils.create_access_jwt(user=user))

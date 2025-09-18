@@ -22,10 +22,10 @@ async def add_task(task: Annotated[CreateTask, Body(..., example={
     "title": "название задачи",
     "description": "описание задачи"
 })],
-                   creator: Annotated[User, Depends(utils.check_auth)],
+                   creator: Annotated[User, Depends(utils.check_token_auth)],
                    ) -> Dict[str, int]:
     try:
-        if (creator.id == task.author_id) or (creator.role.value == settings.roles.admin):
+        if (creator.id == task.author_id) or (creator.role.value == settings.roles.admin): #todo прописать зависимость от админа
             await DataBase.insert_task(task.title, task.description, task.author_id)
         else:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы можете создавать таски только себе")
@@ -44,7 +44,7 @@ async def get_tasks_all(admin: Annotated[User, Depends(utils.check_is_admin)]) -
                   summary='Получение всех задач конкретного пользователя')
 async def get_tasks_user(
         user_id: Annotated[int, Path(..., title='id пользователя, задачи которого вы хотите получить')],
-        user: Annotated[User, Depends(utils.check_auth)],
+        user: Annotated[User, Depends(utils.check_token_auth)],
 ) -> List[Task]:
     if user.id == user_id or (user.role.value == settings.roles.admin):
         return await DataBase.get_tasks_definite_user(user_id)
@@ -56,7 +56,7 @@ async def get_tasks_user(
 async def edit_task(task_id: Annotated[int, Path(..., title='id задачи, статус которой требуется изменить', ge=1)],
                     new_status: Annotated[
                         Status, Query(..., title='Статус задачи.')],
-                    user: Annotated[User, Depends(utils.check_auth)],
+                    user: Annotated[User, Depends(utils.check_token_auth)],
                     ) -> Dict[str, int]:
     '''
     :param user:
@@ -78,7 +78,7 @@ async def edit_task(task_id: Annotated[int, Path(..., title='id задачи, с
 
 @router_tasks.delete('/tasks/delete/{task_id}', tags=['Работа с задачами'], summary='Удаление задачи')
 async def delete_task(task_id: Annotated[int, Path(..., title='id задачи для удаления', ge=1)],
-                        user: Annotated[User, Depends(utils.check_auth)],
+                        user: Annotated[User, Depends(utils.check_token_auth)],
                       ) -> Dict[str, int]:
     if await utils.check_user_permission(task_id, user):
         await DataBase.delete_task(task_id)

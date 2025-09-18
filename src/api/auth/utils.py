@@ -20,10 +20,7 @@ def encode_jwt(
         payload: dict,
         private_key: str = settings.auth_jwt.private_key_path.read_text(),
         algorithm: str = settings.auth_jwt.algorithm,
-        expire_minutes: int = settings.auth_jwt.access_token_expire_minutes,
     ):
-    payload['iat'] = datetime.utcnow()
-    payload['exp'] = datetime.utcnow() + timedelta(minutes=expire_minutes)
     encoded = jwt.encode(payload, private_key, algorithm=algorithm)
     return encoded
 
@@ -35,6 +32,39 @@ def decode_jwt(
     ):
     decoded = jwt.decode(encoded, public_key, algorithms=[algorithm])
     return decoded
+
+
+def create_jwt(sub: int, payload: dict, token_type: str, expire: timedelta) -> str:
+    payload['sub'] = sub
+    payload[settings.const.TOKEN_TYPE_FIELD] = token_type
+    payload['iat'] = datetime.utcnow()
+    payload['exp'] = datetime.utcnow() + expire
+
+    payload.update(payload)
+    return encode_jwt(payload)
+
+
+def create_access_jwt(user: User) -> str:
+    payload = {
+        'name': user.name,
+        'age': user.age,
+    }
+    return create_jwt(
+        sub=user.id,
+        payload=payload,
+        token_type=settings.const.TOKEN_ACCESS_FIELD,
+        expire=settings.auth_jwt.access_token_expire_minutes,
+    )
+
+
+def create_refresh_jwt(user: User) -> str:
+    payload = {}
+    return create_jwt(
+        sub=user.id,
+        payload=payload,
+        token_type=settings.const.TOKEN_REFRESH_FIELD,
+        expire=settings.auth_jwt.refresh_token_expire_days,
+    )
 
 
 def hash_password(password: str) -> bytes:
@@ -63,19 +93,56 @@ async def validate_user_login(
 async def check_auth(
         token: str = Depends(oauth2_scheme)
         # creds: HTTPAuthorizationCredentials = Depends(http_bearer)
-    ) -> User:
+    ) -> dict:
     # token = creds.credentials
     try:
         payload = decode_jwt(encoded=token)
-        id_ = payload.get("sub")
+        return payload
     except jwt.exceptions.InvalidTokenError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Инвалидный токен')
-    if user := await DataBase.get_user(id_):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Инвалидный токен'
+        )
+
+# def check_token_auth(token_type: str = settings.const.TOKEN_ACCESS_FIELD) -> User:
+#     async def check_token_jwt(payload: Annotated[dict, Depends(check_auth)],):
+#         if payload.get(settings.const.TOKEN_TYPE_FIELD) != token_type:
+#             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token type not valid")
+#         if user := await DataBase.get_user(payload.get("sub")):
+#             return user
+#
+#         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Пользователь не найден')
+#
+#     return check_token_jwt
+
+
+def validate_token_type(payload: dict, token_type: str) -> bool:
+    print(token_type, payload.get(settings.const.TOKEN_TYPE_FIELD))
+    if payload.get(settings.const.TOKEN_TYPE_FIELD) == token_type:
+        return True
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token type not valid")
+
+
+async def check_token_auth(
+        payload: dict = Depends(check_auth)
+) -> User:
+    validate_token_type(payload, settings.const.TOKEN_ACCESS_FIELD)
+    if user := await DataBase.get_user(payload.get("sub")):
         return user
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Пользователь не найден')
 
 
-async def check_is_admin(user: Annotated[User, Depends(check_auth)]) -> User:
+async def check_token_auth_refresh(
+        payload: dict = Depends(check_auth)
+) -> User:
+    validate_token_type(payload, settings.const.TOKEN_REFRESH_FIELD)
+    if user := await DataBase.get_user(payload.get("sub")):
+        return user
+
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Пользователь не найден')
+
+
+async def check_is_admin(user: Annotated[User, Depends(check_token_auth)]) -> User:
     if user.role.value != settings.roles.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Нет прав на выполнение операции!")
     return user

@@ -1,3 +1,4 @@
+from datetime import timedelta
 from pathlib import Path
 
 from pydantic.v1 import BaseModel
@@ -10,8 +11,8 @@ class JWTAuth(BaseModel):
     private_key_path: Path = BASE_DIR.joinpath('certs/jwt-private.pem')
     public_key_path: Path = BASE_DIR.joinpath('certs/jwt-public.pem')
     algorithm: str = 'PS256'
-    access_token_expire_minutes: int = 30
-    refresh_token_expire_days: int = 30
+    access_token_expire_minutes: timedelta = timedelta(minutes=30)
+    refresh_token_expire_days: timedelta = timedelta(days=30)
     # access_token_expire_minutes: int = 60
 
 
@@ -44,6 +45,8 @@ class DB_Settings(ConfigBase):
 
 class Const(BaseModel):
     TOKEN_TYPE_FIELD: str = 'token_type'
+    TOKEN_ACCESS_FIELD: str = 'access'
+    TOKEN_REFRESH_FIELD: str = 'refresh'
     dump_path: str = "media"
     base_dir: Path = BASE_DIR
 
