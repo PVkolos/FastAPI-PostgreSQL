@@ -1,5 +1,5 @@
 from enum import Enum
-from src.config import Roles
+from config import Roles
 
 
 # class Role(Enum):
@@ -10,7 +10,13 @@ from src.config import Roles
 Role = Enum('Role', Roles().dict())
 
 
-class Status(Enum):
+class StatusTask(Enum):
     in_progress = "in_progress"
     done = "done"
     failed = "failed"
+
+
+class StatusMessage(Enum):
+    modified = "modified"
+    unmodified = "unmodified"
+    deleted = "deleted"

@@ -9,7 +9,7 @@ from starlette import status
 from src.schemas import CreateTask, Task, User
 from src.database.database_orm import DataBase
 
-from src.enums import Status
+from src.enums import StatusTask
 from .auth import utils
 from src.config import settings
 
@@ -55,7 +55,7 @@ async def get_tasks_user(
 @router_tasks.put("/tasks/edit/{task_id}", tags=['Работа с задачами'], summary='Редактирование статуса задачи')
 async def edit_task(task_id: Annotated[int, Path(..., title='id задачи, статус которой требуется изменить', ge=1)],
                     new_status: Annotated[
-                        Status, Query(..., title='Статус задачи.')],
+                        StatusTask, Query(..., title='Статус задачи.')],
                     user: Annotated[User, Depends(utils.check_token_auth)],
                     ) -> Dict[str, int]:
     '''
