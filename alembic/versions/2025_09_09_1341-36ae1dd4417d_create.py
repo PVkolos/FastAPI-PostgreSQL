@@ -37,7 +37,7 @@ def upgrade() -> None:
         sa.Column("description", sa.String(), nullable=False),
         sa.Column(
             "status",
-            sa.Enum("in_progress", "done", "failed", name="status"),
+            sa.Enum("in_progress", "done", "failed", name="statustask"),
             server_default="in_progress",
             nullable=False,
         ),
