@@ -1,5 +1,5 @@
 from enum import Enum
-from config import Roles
+from .config import Roles
 
 
 # class Role(Enum):

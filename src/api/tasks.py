@@ -48,8 +48,7 @@ async def get_tasks_user(
 ) -> List[Task]:
     if user.id == user_id or (user.role.value == settings.roles.admin):
         return await DataBase.get_tasks_definite_user(user_id)
-    else:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы можете получить только свои таски!")
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы можете получить только свои таски!")
 
 
 @router_tasks.put("/tasks/edit/{task_id}", tags=['Работа с задачами'], summary='Редактирование статуса задачи')
