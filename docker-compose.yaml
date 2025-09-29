@@ -1,0 +1,52 @@
+services:
+  app:
+    build:
+      dockerfile: ./Dockerfile
+      context: ./
+    ports:
+      - "5050:8000"
+#    volumes:
+#      - ./FastAPIProject:/app
+    environment:
+      DB_HOST: pg
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: password
+      DB_NAME: tasks
+      DATABASE_URL_asyncpg: postgresql+asyncpg://postgres:password@pg:5432/tasks
+    depends_on:
+      pg:
+        condition: service_healthy
+
+  pg:
+    image: postgres:17.6
+    container_name: postgres_cont
+    ports:
+      - "5432:5432"
+    environment:
+      PGUSER: postgres
+      POSTGRES_DB: tasks
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.org
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5150:80"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    depends_on:
+      pg:
+        condition: service_healthy
+
+volumes:
+  pgdata:
