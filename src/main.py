@@ -15,7 +15,7 @@ app.include_router(router_main)
 
 @app.get("/")
 async def root() -> str:
-    return 'Это тестовый проект для демонстрации навыков в FastAPI и PostgreSQL'
+    return 'Это тестовый проект для демонстрации навыков в FastAPI, PostgreSQL, alembic, docker, docker copmose'
 
 
 if __name__ == '__main__':
