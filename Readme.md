@@ -21,6 +21,6 @@ crud операции над тасками и пользователями. <br
 <h5>Установка и запуск</h5>
 > DOCKER COMPOSE
 ```
-docker compose up -d --build
+docker compose up -d --build<br>
 docker compose exec app alembic upgrade head
 ```
